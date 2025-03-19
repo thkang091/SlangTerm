@@ -16,3 +16,5 @@ slang_env/
 # Ignore environment variables and credentials
 .env
 *.json
+
+Miniconda.sh
