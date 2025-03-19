@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=slang_user
+      - POSTGRES_PASSWORD=slang_password
+      - POSTGRES_DB=slang_dictionary
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slang_user -d slang_dictionary"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://slang_user:slang_password@db/slang_dictionary
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIREBASE_CREDENTIALS=firebase-credentials.json
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:19006
+      - GPT_MODEL=${GPT_MODEL:-gpt-3.5-turbo}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
