@@ -3,7 +3,7 @@ import os
 from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import List, Dict, Optional, Any
 from config import OPENAI_API_KEY, GPT_MODEL
-import requests
+from security import safe_requests
 
 
 # Configure OpenAI
@@ -169,7 +169,7 @@ class AIService:
         url = f"https://api.urbandictionary.com/v0/define?term={term}"
         
         try:
-            response = requests.get(url)
+            response = safe_requests.get(url)
             data = response.json()
             
             if not data.get("list"):
